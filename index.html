@@ -404,6 +404,12 @@
   </header>
 
   <div class="translator">
+    <div style="padding: 18px 24px 0 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+      <label for="speaker" style="font-size:13px; font-weight:600;">Your Name:</label>
+      <input id="speaker" type="text" placeholder="e.g. Rocky" style="width: 120px; margin-right: 18px;">
+      <label for="listener" style="font-size:13px; font-weight:600;">Talking To:</label>
+      <input id="listener" type="text" placeholder="e.g. Grace" style="width: 120px;">
+    </div>
     <div class="translator-inner">
       <div class="pane pane-english">
         <div class="pane-label">
@@ -511,8 +517,10 @@
 </div>
 
 <script>
-  function toRocky(text) {
+  function toRocky(text, speaker, listener) {
     let s = text.trim();
+    speaker = speaker || 'Rocky';
+    listener = listener || 'Grace';
 
     const contractions = [
       [/\bI'm\b/gi, "I am"], [/\bI've\b/gi, "I have"], [/\bI'll\b/gi, "I will"],
@@ -543,13 +551,16 @@
         /^(what|where|when|why|how|who|do|does|did|are|is|was|were|will|would|can|could|should)\b/i.test(w);
       const hasExclamation = /!/.test(w);
 
-      w = w.replace(/[.?!,;]+$/, '');
 
-      w = w.replace(/\bmy\b/gi, "Rocky");
-      w = w.replace(/\bmine\b/gi, "Rocky");
-      w = w.replace(/\bme\b/gi, "Rocky");
-      w = w.replace(/\bI\b/g, "Rocky");
-      w = w.replace(/\bmyself\b/gi, "Rocky");
+      // Pronoun replacement with speaker/listener
+      w = w.replace(/\bmy\b/gi, speaker + "'s");
+      w = w.replace(/\bmine\b/gi, speaker + "'s");
+      w = w.replace(/\bme\b/gi, speaker);
+      w = w.replace(/\bI\b/g, speaker);
+      w = w.replace(/\bmyself\b/gi, speaker);
+      w = w.replace(/\byour\b/gi, listener + "'s");
+      w = w.replace(/\byours\b/gi, listener + "'s");
+      w = w.replace(/\byou\b/gi, listener);
 
       w = w.replace(/\bthe\b/gi, '');
       w = w.replace(/\b(a|an)\b/gi, '');
@@ -613,6 +624,8 @@
 
   function eridianTranslate() {
     const input = document.getElementById('input').value;
+    const speaker = document.getElementById('speaker')?.value.trim() || 'Rocky';
+    const listener = document.getElementById('listener')?.value.trim() || 'Grace';
     const outputEl = document.getElementById('output');
     const pane = document.getElementById('output-pane');
 
@@ -621,7 +634,7 @@
       return;
     }
 
-    const out = toRocky(input);
+    const out = toRocky(input, speaker, listener);
     outputEl.className = 'output-text';
     outputEl.textContent = out;
 
