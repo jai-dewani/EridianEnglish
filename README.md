@@ -2,6 +2,9 @@
 
 A quirky web-based translator that converts normal English into "Eridian English"—the efficient, literal, and emphatic language inspired by Rocky from Project Hail Mary.
 
+### Approved by Kevin 
+
+<img width="480" height="270" alt="image" src="https://github.com/user-attachments/assets/3d118c2b-cf4f-4a92-88a4-112700bd3535" />
 
 ## Features
 - Input your name and the person you're talking to for authentic third-person Rocky-speak.
