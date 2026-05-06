@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eridian English Translator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7fa; }
+        h1 { color: #4b3f72; }
+        textarea, .output { width: 100%; padding: 10px; margin-top: 10px; font-size: 1.1em; }
+        button { margin-top: 15px; padding: 10px 20px; font-size: 1em; background: #4b3f72; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+        .output { background: #e0e7ff; min-height: 60px; border-radius: 4px; margin-top: 20px; }
+        label { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Eridian English Translator</h1>
+    <label for="input">Normal English:</label>
+    <textarea id="input" rows="4" placeholder="Type your sentence here..."></textarea>
+    <button onclick="eridianTranslate()">Translate to Eridian English</button>
+    <div class="output" id="output"></div>
+
+    <script>
+        // Simple noun and idiom mappings for demonstration
+        const nounMap = {
+            'computer': 'thinking-machine',
+            'monitor': 'see-box',
+            'screen': 'see-box',
+            'ship': 'ship',
+            'airlock': 'air-lock',
+            'door': 'entry-panel',
+            'robot': 'metal-helper',
+            'eye': 'eye',
+            'fist bump': 'fist my bump',
+        };
+        const idiomMap = {
+            'keep an eye on': 'watch',
+            'break a leg': 'good luck',
+            'hit the sack': 'sleep',
+            'piece of cake': 'easy',
+            'let the cat out of the bag': 'reveal secret',
+            'give me a fist bump': 'fist my bump',
+        };
+        // Articles and auxiliary verbs to remove
+        const articles = ['the', 'a', 'an'];
+        const toBe = ['am', 'is', 'are', 'was', 'were', 'be', 'being', 'been'];
+        // Simple adjectives/verbs for tripling
+        const tripleWords = ['bad', 'amaze', 'good', 'fast', 'slow', 'danger', 'safe', 'impress', 'strong', 'weak'];
+
+        // Simple verb root mapping (for demonstration)
+        function toRootVerb(word) {
+            // Remove common suffixes (ing, ed, s)
+            if (word.endsWith('ing')) return word.slice(0, -3);
+            if (word.endsWith('ed')) return word.slice(0, -2);
+            if (word.endsWith('es')) return word.slice(0, -2);
+            if (word.endsWith('s')) return word.slice(0, -1);
+            return word;
+        }
+
+        function eridianTranslate() {
+            let text = document.getElementById('input').value;
+            let original = text;
+
+            // 6. Literalism & Idiom Rejection
+            for (const [idiom, literal] of Object.entries(idiomMap)) {
+                const regex = new RegExp(idiom, 'gi');
+                text = text.replace(regex, literal);
+            }
+
+            // 4. Noun-Adjective Substitution
+            for (const [noun, eridian] of Object.entries(nounMap)) {
+                const regex = new RegExp(`\\b${noun}\\b`, 'gi');
+                text = text.replace(regex, eridian);
+            }
+
+            // 1. Omission of Articles & Auxiliary Verbs
+            let words = text.split(/\s+/);
+            words = words.filter(w => !articles.includes(w.toLowerCase()) && !toBe.includes(w.toLowerCase()));
+
+            // 5. Root Verb Consistency
+            words = words.map(w => toRootVerb(w));
+
+            // 2. Rule of Three (Tripling)
+            words = words.map(w => {
+                if (tripleWords.includes(w.toLowerCase())) {
+                    return `${w} ${w} ${w}`;
+                }
+                return w;
+            });
+
+            // Reconstruct sentence
+            let result = words.join(' ');
+
+            // 3. Verbal Punctuation (Question Tags)
+            // If original sentence ends with ? or starts with a question word, add 'question?'
+            const questionWords = ['who', 'what', 'when', 'where', 'why', 'how', 'do', 'does', 'did', 'is', 'are', 'can', 'will', 'would', 'should', 'could'];
+            let isQuestion = /\?$/.test(original.trim()) || questionWords.some(qw => original.trim().toLowerCase().startsWith(qw + ' '));
+            if (isQuestion) {
+                result = result.replace(/\?$/, ''); // Remove existing ?
+                result = result.trim() + ', question?';
+            }
+
+            document.getElementById('output').innerText = result;
+        }
+    </script>
+</body>
+</html>
