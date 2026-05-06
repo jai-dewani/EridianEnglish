@@ -12,10 +12,11 @@ A quirky web-based translator that converts normal English into "Eridian English
 - Noun substitutions for that true Eridian flavor.
 
 ## Usage
-1. Open `index.html` in your browser.
-2. Enter your name, the name of the person you're talking to, and your English sentence.
+1. Open https://jai-dewani.github.io/EridianEnglish/ in your browser.
+2. Enter your English sentence.
 3. Click "Translate to Eridian English".
 4. See your sentence transformed into Eridian English!
+5. You can even enter your name, the name of the person you're talking to get a bit more personalized result
 
 ## Example
 | English Input                        | Eridian Output                       |
