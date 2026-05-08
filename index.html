@@ -390,6 +390,135 @@
     animation: fadeUp 0.6s ease forwards 0.3s;
   }
 
+  /* ── AI Mode Toggle ── */
+  .mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .mode-toggle input[type="checkbox"] {
+    display: none;
+  }
+
+  .toggle-track {
+    width: 36px;
+    height: 20px;
+    background: var(--muted2);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text);
+    transition: transform 0.2s;
+  }
+
+  .mode-toggle input:checked + .toggle-track {
+    background: var(--amber);
+  }
+
+  .mode-toggle input:checked + .toggle-track::after {
+    transform: translateX(16px);
+  }
+
+  .mode-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .mode-badge.ai {
+    background: var(--amber-dim);
+    color: var(--amber);
+  }
+
+  .mode-badge.offline {
+    background: var(--rocky-green-dim);
+    color: var(--rocky-green);
+  }
+
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.2s steps(4, end) infinite;
+  }
+
+  @keyframes dots {
+    0%   { content: ''; }
+    25%  { content: '.'; }
+    50%  { content: '..'; }
+    75%  { content: '...'; }
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ── Speaker inputs ── */
+  .speaker-bar {
+    padding: 18px 24px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .speaker-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .speaker-field label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .speaker-field input {
+    width: 120px;
+    padding: 7px 10px;
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    border-radius: 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .speaker-field input::placeholder {
+    color: var(--muted2);
+  }
+
+  .speaker-field input:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 2px var(--amber-dim);
+  }
+
 </style>
 </head>
 <body>
@@ -404,11 +533,15 @@
   </header>
 
   <div class="translator">
-    <div style="padding: 18px 24px 0 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
-      <label for="speaker" style="font-size:13px; font-weight:600;">Your Name:</label>
-      <input id="speaker" type="text" placeholder="e.g. Rocky" style="width: 120px; margin-right: 18px;">
-      <label for="listener" style="font-size:13px; font-weight:600;">Talking To:</label>
-      <input id="listener" type="text" placeholder="e.g. Grace" style="width: 120px;">
+    <div class="speaker-bar">
+      <div class="speaker-field">
+        <label for="speaker">Speaker</label>
+        <input id="speaker" type="text" placeholder="e.g. Rocky">
+      </div>
+      <div class="speaker-field">
+        <label for="listener">Talking to</label>
+        <input id="listener" type="text" placeholder="e.g. Grace">
+      </div>
     </div>
     <div class="translator-inner">
       <div class="pane pane-english">
@@ -434,11 +567,19 @@
       </div>
     </div>
     <div class="translator-bar">
-      <span class="char-count" id="char-count">0 chars</span>
+      <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <span class="char-count" id="char-count">0 chars</span>
+        <label class="mode-toggle">
+          <input type="checkbox" id="ai-toggle" onchange="onModeChange()">
+          <span class="toggle-track"></span>
+          <span>AI</span>
+        </label>
+        <span class="mode-badge offline" id="mode-badge">Offline</span>
+      </div>
       <div class="btn-group">
         <button class="btn-ghost" onclick="clearAll()">Clear</button>
         <button class="btn-copy" id="copy-btn" onclick="copyOutput()">Copy output</button>
-        <button class="btn-primary" onclick="eridianTranslate()">Translate →</button>
+        <button class="btn-primary" id="translate-btn" onclick="eridianTranslate()">Translate →</button>
       </div>
     </div>
   </div>
@@ -802,21 +943,78 @@
     return result.filter(Boolean).join('\n');
   }
 
-  function eridianTranslate() {
+  // ── Configuration ──
+  const API_URL = 'https://eridian-api-evdmezajgbd5f8fj.eastus-01.azurewebsites.net/api/translate';
+
+  function isAIMode() {
+    return document.getElementById('ai-toggle').checked;
+  }
+
+  function onModeChange() {
+    const badge = document.getElementById('mode-badge');
+    if (isAIMode()) {
+      badge.textContent = 'AI';
+      badge.className = 'mode-badge ai';
+    } else {
+      badge.textContent = 'Offline';
+      badge.className = 'mode-badge offline';
+    }
+  }
+
+  async function eridianTranslate() {
     const input = document.getElementById('input').value;
     const speaker = document.getElementById('speaker')?.value.trim() || 'Rocky';
     const listener = document.getElementById('listener')?.value.trim() || 'Grace';
     const outputEl = document.getElementById('output');
     const pane = document.getElementById('output-pane');
+    const btn = document.getElementById('translate-btn');
 
     if (!input.trim()) {
       outputEl.innerHTML = '<span class="output-placeholder">Translation appears here…</span>';
       return;
     }
 
-    const out = toRocky(input, speaker, listener);
-    outputEl.className = 'output-text';
-    outputEl.textContent = out;
+    if (isAIMode()) {
+      // AI mode — call Azure Function
+      btn.disabled = true;
+      btn.textContent = 'Translating';
+      btn.classList.add('loading-dots');
+      outputEl.className = 'output-text';
+      outputEl.innerHTML = '<span class="output-placeholder">Thinking like Rocky…</span>';
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: input, speaker, listener }),
+        });
+
+        if (!res.ok) throw new Error('API error');
+
+        const data = await res.json();
+        outputEl.className = 'output-text';
+        outputEl.textContent = data.translation;
+      } catch (err) {
+        // Fallback to regex on error
+        console.warn('AI translation failed, falling back to regex:', err);
+        const out = toRocky(input, speaker, listener);
+        outputEl.className = 'output-text';
+        outputEl.textContent = out;
+        const badge = document.getElementById('mode-badge');
+        badge.textContent = 'Fallback';
+        badge.className = 'mode-badge offline';
+        setTimeout(() => onModeChange(), 3000);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Translate →';
+        btn.classList.remove('loading-dots');
+      }
+    } else {
+      // Offline mode — regex
+      const out = toRocky(input, speaker, listener);
+      outputEl.className = 'output-text';
+      outputEl.textContent = out;
+    }
 
     pane.classList.remove('flash');
     void pane.offsetWidth;
