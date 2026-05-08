@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Azure Functions
+eridian-api/local.settings.json
+eridian-api/.vscode/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor
+*.swp
+*.swo
