@@ -13,7 +13,10 @@
 
 <div class="wrapper">
   <header>
-    <div class="eyebrow">Project Hail Mary · Eridian Language System</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div class="eyebrow">Project Hail Mary · Eridian Language System</div>
+      <a href="lab.html" class="lab-link">&#9881; Lab</a>
+    </div>
     <h1>Rocky's<br><span>Translator</span></h1>
     <div class="tau-line"></div>
     <p class="subtitle">Convert English into Eridian English — the way Rocky speaks. Based on speech pattern analysis from the Project Hail Mary film transcript.</p>
@@ -61,6 +64,12 @@
           <span class="toggle-track"></span>
           <span>AI</span>
         </label>
+        <select class="prompt-select" id="prompt-select" title="Prompt variant">
+          <option value="v1">V1 — Enhanced</option>
+          <option value="v2">V2 — Translator Logic</option>
+          <option value="v3">V3 — Concise Rules</option>
+          <option value="v4" selected>V4 — Deployed</option>
+        </select>
         <span class="mode-badge ai" id="mode-badge">AI</span>
       </div>
       <div class="btn-group">

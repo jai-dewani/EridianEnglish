@@ -322,11 +322,13 @@ async function eridianTranslate() {
     outputEl.className = 'output-text';
     outputEl.innerHTML = '<span class="output-placeholder">Thinking like Rocky\u2026</span>';
 
+    const promptId = document.getElementById('prompt-select')?.value || 'v4';
+
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: input, speaker, listener }),
+        body: JSON.stringify({ text: input, speaker, listener, promptId }),
       });
 
       if (!res.ok) throw new Error('API error');

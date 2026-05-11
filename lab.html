@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocky's Lab — Prompt Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="lab-wrapper">
+  <div class="lab-header">
+    <a href="index.html" class="lab-back">&larr; Back to Translator</a>
+    <h1>Rocky's<br><span>Lab</span></h1>
+    <div class="tau-line"></div>
+    <p class="subtitle">Compare all prompt variants side-by-side. Type any English sentence and see how each prompt translates it into Eridian English. Vote for the best one.</p>
+  </div>
+
+  <!-- Input card -->
+  <div class="lab-input-card">
+    <textarea
+      id="lab-input"
+      placeholder="Type any English sentence here…"
+      spellcheck="false"
+    >I don't know what happened to my crew. I am very happy that you are here with me.</textarea>
+    <div class="lab-input-bar">
+      <div class="lab-fields">
+        <div class="speaker-field">
+          <label for="lab-speaker">Speaker</label>
+          <input id="lab-speaker" type="text" placeholder="e.g. Rocky">
+        </div>
+        <div class="speaker-field">
+          <label for="lab-listener">Talking to</label>
+          <input id="lab-listener" type="text" placeholder="e.g. Grace">
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn-ghost" onclick="labClear()">Clear</button>
+        <button class="btn-primary" id="compare-btn" onclick="compareAll()">Compare All &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison grid -->
+  <div class="compare-grid" id="compare-grid">
+    <div class="compare-cell" id="cell-v1">
+      <div class="compare-cell-header">
+        <div><span class="compare-version">V1</span> <span class="compare-label">Enhanced</span></div>
+        <div class="compare-vote">
+          <button class="vote-btn" onclick="vote('v1')" id="vote-v1">&#9733; Best</button>
+          <span class="vote-count" id="count-v1">0</span>
+        </div>
+      </div>
+      <div class="compare-output placeholder" id="output-v1">Waiting for input…</div>
+    </div>
+    <div class="compare-cell" id="cell-v2">
+      <div class="compare-cell-header">
+        <div><span class="compare-version">V2</span> <span class="compare-label">Translator Logic</span></div>
+        <div class="compare-vote">
+          <button class="vote-btn" onclick="vote('v2')" id="vote-v2">&#9733; Best</button>
+          <span class="vote-count" id="count-v2">0</span>
+        </div>
+      </div>
+      <div class="compare-output placeholder" id="output-v2">Waiting for input…</div>
+    </div>
+    <div class="compare-cell" id="cell-v3">
+      <div class="compare-cell-header">
+        <div><span class="compare-version">V3</span> <span class="compare-label">Concise Rules</span></div>
+        <div class="compare-vote">
+          <button class="vote-btn" onclick="vote('v3')" id="vote-v3">&#9733; Best</button>
+          <span class="vote-count" id="count-v3">0</span>
+        </div>
+      </div>
+      <div class="compare-output placeholder" id="output-v3">Waiting for input…</div>
+    </div>
+    <div class="compare-cell" id="cell-v4">
+      <div class="compare-cell-header">
+        <div><span class="compare-version">V4</span> <span class="compare-label">Deployed</span></div>
+        <div class="compare-vote">
+          <button class="vote-btn" onclick="vote('v4')" id="vote-v4">&#9733; Best</button>
+          <span class="vote-count" id="count-v4">0</span>
+        </div>
+      </div>
+      <div class="compare-output placeholder" id="output-v4">Waiting for input…</div>
+    </div>
+  </div>
+
+  <!-- Test suite -->
+  <p class="section-title">Test suite</p>
+  <div class="test-suite" id="test-suite">
+    <button class="test-btn" onclick="runTest(this)">I don't know what happened to my crew. I am very happy that you are here with me.</button>
+    <button class="test-btn" onclick="runTest(this)">I am going to build a workshop in your ship, and I will need a lot of room.</button>
+    <button class="test-btn" onclick="runTest(this)">Do you think we will be able to find the predator in the atmosphere?</button>
+    <button class="test-btn" onclick="runTest(this)">Why didn't you tell me that you are not going home?</button>
+    <button class="test-btn" onclick="runTest(this)">I am so sorry, the radiation from the fuel killed your crew and I couldn't fix it.</button>
+    <button class="test-btn" onclick="runTest(this)">That's absolutely incredible! We found life on the planet!</button>
+    <button class="test-btn" onclick="runTest(this)">If we don't fly at the precise angle and speed, we will probably die.</button>
+    <button class="test-btn" onclick="runTest(this)">My mate is waiting for me at home. I have been away for a very long time and I miss them.</button>
+    <button class="test-btn" onclick="runTest(this)">Break a leg out there! You're going to do great.</button>
+    <button class="test-btn" onclick="runTest(this)">The computer says the hull is breaking apart because the gravity is too strong.</button>
+  </div>
+
+  <!-- Vote summary -->
+  <p class="section-title">Vote tally</p>
+  <div class="rules" id="vote-tally" style="margin-bottom:40px;">
+    <div class="rule-card">
+      <div class="rule-name">V1 — Enhanced</div>
+      <div class="rule-after" id="tally-v1">0 votes</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-name">V2 — Translator Logic</div>
+      <div class="rule-after" id="tally-v2">0 votes</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-name">V3 — Concise Rules</div>
+      <div class="rule-after" id="tally-v3">0 votes</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-name">V4 — Deployed</div>
+      <div class="rule-after" id="tally-v4">0 votes</div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Rocky's Lab &middot; Prompt Comparison</span>
+    <span class="footer-sig">Rocky &middot; Erid &middot; <span>Tau Ceti</span></span>
+  </footer>
+</div>
+
+<script src="lab.js"></script>
+
+</body>
+</html>
