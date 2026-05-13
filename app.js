@@ -427,11 +427,54 @@ function speakOutput() {
     return;
   }
 
+
+  // Browser-specific voice selection
+  function getBrowserName() {
+    const userAgent = navigator.userAgent;
+    if (userAgent.includes("Edg/")) {
+      return "Edge";
+    } else if (userAgent.includes("Chrome/")) {
+      return "Chrome";
+    } else if (userAgent.includes("Safari/") && !userAgent.includes("Chrome/")) {
+      return "Safari";
+    } else {
+      return "Other";
+    }
+  }
+
+  function selectVoiceForBrowser(voices, browser) {
+    if (browser === "Edge") {
+      return voices.find(voice => voice.name.includes("Microsoft"));
+    } else if (browser === "Safari") {
+      return voices.find(voice => voice.name.includes("Fred"));
+    } else if (browser === "Chrome") {
+      return voices.find(voice => voice.name.includes("Reed (English (United States))"));
+    } else {
+      return voices[0]; // Fallback
+    }
+  }
+
+  function getRateForBrowser(browser) {
+    if (browser === "Edge") return 1.0;
+    if (browser === "Safari") return 1.1;
+    if (browser === "Chrome") return 1.4;
+    return 1.2;
+  }
+
+  function getPitchForBrowser(browser) {
+    if (browser === "Edge") return 1.0;
+    if (browser === "Safari") return 1.2;
+    if (browser === "Chrome") return 0.8;
+    return 2.0;
+  }
+
   const voices = speechSynthesis.getVoices();
+  const browser = getBrowserName();
+  const selectedVoice = selectVoiceForBrowser(voices, browser);
   const u = new SpeechSynthesisUtterance(text);
-  u.voice = voices[0];
-  u.pitch = 2.5;
-  u.rate = 1.2;
+  u.voice = selectedVoice;
+  u.pitch = getPitchForBrowser(browser);
+  u.rate = getRateForBrowser(browser);
 
   btn.textContent = '\u25a0 Stop';
   btn.classList.add('playing');
